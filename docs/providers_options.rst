@@ -16,29 +16,31 @@ The following Lexicon providers are supported by DNSroboCert.
 +----------------+----------------+----------------+----------------+
 |dnsmadeeasy_    |dnspark_        |dnspod_         |dreamhost_      |
 +----------------+----------------+----------------+----------------+
-|easydns_        |easyname_       |euserv_         |exoscale_       |
+|dynu_           |easydns_        |easyname_       |euserv_         |
 +----------------+----------------+----------------+----------------+
-|gandi_          |gehirn_         |glesys_         |godaddy_        |
+|exoscale_       |gandi_          |gehirn_         |glesys_         |
 +----------------+----------------+----------------+----------------+
-|googleclouddns_ |gransy_         |gratisdns_      |henet_          |
+|godaddy_        |googleclouddns_ |gransy_         |gratisdns_      |
 +----------------+----------------+----------------+----------------+
-|hetzner_        |hostingde_      |hover_          |infoblox_       |
+|henet_          |hetzner_        |hostingde_      |hover_          |
 +----------------+----------------+----------------+----------------+
-|internetbs_     |inwx_           |linode_         |linode4_        |
+|infoblox_       |internetbs_     |inwx_           |linode_         |
 +----------------+----------------+----------------+----------------+
-|localzone_      |luadns_         |memset_         |namecheap_      |
+|linode4_        |localzone_      |luadns_         |memset_         |
 +----------------+----------------+----------------+----------------+
-|namesilo_       |netcup_         |nfsn_           |nsone_          |
+|namecheap_      |namesilo_       |netcup_         |nfsn_           |
 +----------------+----------------+----------------+----------------+
-|onapp_          |online_         |ovh_            |plesk_          |
+|nsone_          |onapp_          |online_         |ovh_            |
 +----------------+----------------+----------------+----------------+
-|pointhq_        |powerdns_       |rackspace_      |rage4_          |
+|plesk_          |pointhq_        |powerdns_       |rackspace_      |
 +----------------+----------------+----------------+----------------+
-|rcodezero_      |route53_        |safedns_        |sakuracloud_    |
+|rage4_          |rcodezero_      |route53_        |safedns_        |
 +----------------+----------------+----------------+----------------+
-|softlayer_      |subreg_         |transip_        |vultr_          |
+|sakuracloud_    |softlayer_      |subreg_         |transip_        |
 +----------------+----------------+----------------+----------------+
-|yandex_         |zeit_           |zilore_         |zonomi_         |
+|ultradns_       |vultr_          |yandex_         |zeit_           |
++----------------+----------------+----------------+----------------+
+|zilore_         |zonomi_         |                |                |
 +----------------+----------------+----------------+----------------+
 
 Providers options
@@ -68,8 +70,9 @@ azure
 .. _cloudflare:
 
 cloudflare
-    * ``auth_username`` Specify email address for authentication
-    * ``auth_token`` Specify token for authentication
+    * ``auth_username`` Specify email address for authentication (for global api key only)
+    * ``auth_token`` Specify token for authentication (global api key or api token)
+    * ``zone_id`` Specify the zone id (if set, api token can be scoped to the target zone)
 
 .. _cloudns:
 
@@ -151,6 +154,11 @@ dnspod
 dreamhost
     * ``auth_token`` Specify api key for authentication
 
+.. _dynu:
+
+dynu
+    * ``auth_token`` Specify api key for authentication
+
 .. _easydns:
 
 easydns
@@ -229,12 +237,7 @@ henet
 .. _hetzner:
 
 hetzner
-    * ``auth_account`` Specify type of hetzner account: by default hetzner robot (robot) or hetzner konsoleh (konsoleh)
-    * ``auth_username`` Specify username of hetzner account
-    * ``auth_password`` Specify password of hetzner account
-    * ``linked`` If exists, uses linked cname as a|aaaa|txt record name for edit actions: by default (yes); further restriction: only enabled if record name or raw fqdn record identifier 'type/name/content' is specified, and additionally for update actions the record name remains the same
-    * ``propagated`` Waits until record is publicly propagated after succeeded create|update actions: by default (yes)
-    * ``latency`` Specify latency, used during checks for publicly propagation and additionally for hetzner robot after record edits: by default 30s (30)
+    * ``auth_token`` Specify hetzner dns api token
 
 .. _hostingde:
 
@@ -422,6 +425,13 @@ subreg
 transip
     * ``auth_username`` Specify username for authentication
     * ``auth_api_key`` Specify api private key for authentication
+
+.. _ultradns:
+
+ultradns
+    * ``auth_token`` Specify token for authentication; if not set --auth-token, --auth-password are used
+    * ``auth_username`` Specify username for authentication
+    * ``auth_password`` Specify password for authentication
 
 .. _vultr:
 

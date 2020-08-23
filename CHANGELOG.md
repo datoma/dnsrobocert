@@ -2,6 +2,78 @@
 
 ## master - CURRENT
 
+## 3.6.0 - 17/08/2020
+## Modified
+* Upgrade Lexicon to 3.3.28
+* Upgrade Certbot to 1.7.0
+* Upgrade Docker base image to Alpine 3.12
+
+## 3.5.1 - 25/07/2020
+## Modified
+* Modify dependencies versions pinning to fix the docker images builds
+
+## 3.5.0 - 23/07/2020
+## Added
+* `autocmd.command` now accepts list of string. If a list of string is provided, the command will
+  be executed outside of a shell. If a string is provided, it will be executed inside a shell.
+  The list of string form should be used if you do not need the features of a shell since it allows
+  a better control of the arguments passed to the command and avoid potential injections attacks.
+
+## Modified
+* Upgrade Lexicon to 3.3.27 (support for Dynu.com provider)
+* Upgrade Docker base image to Alpine 3.12
+
+## 3.4.0 - 14/06/2020
+### Added
+* DNS challenges are now all run before any wait or check happens. This is useful for certificates that
+  contains  lot of domains, because DNSroboCert will wait only once the provided `sleep_time`, instead
+  of waiting after each challenge. This optimizations is also valid for `max_checks`.
+  
+### Modified
+* Improve log output from the auth and cleanup hooks.
+* Improve documentation.
+
+## 3.3.4 - 14/06/2020
+### Modified
+* Upgrade Lexicon to 3.3.26 (fix errors with Godaddy provider)
+
+## 3.3.3 - 03/06/2020
+### Modified
+* Upgrade Lexicon to 3.3.24
+* Upgrade Certbot to 1.5.0
+
+## 3.3.2 - 31/05/2020
+### Added
+* Allow environment variable injection in the configuration file
+
+## 3.3.1 - 30/05/2020
+### Added
+* Validate the directory URL with a regex
+
+### Changed
+* Improve the regex check to email account for better compatibility
+
+## 3.3.0 - 15/05/2020
+### Added
+* Set the User-Agent comment for Let'sEncrypt statistics
+
+### Changed
+* Update Lexicon to 3.3.22
+* Search for `dnsrobocert.yml` config file in current directory when `--config` flag is not set.
+
+## 3.2.0 - 06/05/2020
+### Changed
+* Update Lexicon to 3.3.21 (API tokens for Cloudflare)
+* Update Certbot to 1.4.0
+
+## 3.1.7 - 04/05/2020
+### Added 
+* DNSroboCert can now display logs in your current timezone if the `TIMEZONE` environment variable
+  is set (@a16bitsysop #104)
+
+### Changed
+* Update Lexicon to 3.3.20 (rebranded Hetzner provider, support pagination on CloudFlare)
+
 ## 3.1.6 - 08/04/2020
 ## Changed
 * Update runtime dependencies (including cryptography 2.9)

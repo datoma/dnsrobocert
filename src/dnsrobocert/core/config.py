@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from typing import Any, Dict, Optional, Set
 
 import coloredlogs
@@ -15,14 +16,16 @@ coloredlogs.install(logger=LOGGER)
 
 def load(config_path: str) -> Optional[Dict[str, Any]]:
     if not os.path.exists(config_path):
-        LOGGER.error("Configuration file {0} does not exist.".format(config_path))
+        LOGGER.error(f"Configuration file {config_path} does not exist.")
         return None
 
     with open(config_path) as file_h:
         raw_config = file_h.read()
 
+    raw_config = _inject_env_variables(raw_config)
+
     try:
-        config = yaml.load(raw_config, yaml.FullLoader)
+        config = yaml.load(raw_config, Loader=yaml.FullLoader)
     except BaseException:
         message = """
 Error while validating dnsrobocert configuration:
@@ -46,14 +49,13 @@ Configuration file is empty.\
     try:
         jsonschema.validate(instance=config, schema=schema)
     except jsonschema.ValidationError as e:
-        message = """\
-Error while validating dnsrobocert configuration for node path {0}:
-{1}.
+        node = "/" + "/".join([str(item) for item in e.path])
+        message = f"""\
+Error while validating dnsrobocert configuration for node path {node}:
+{e.message}.
 -----
-{2}\
-""".format(
-            "/" + "/".join([str(item) for item in e.path]), e.message, raw_config,
-        )
+{raw_config}\
+"""
         LOGGER.error(message)
         return None
 
@@ -61,14 +63,12 @@ Error while validating dnsrobocert configuration for node path {0}:
         _values_conversion(config)
         _business_check(config)
     except ValueError as e:
-        message = """\
+        message = f"""\
 Error while validating dnsrobocert configuration:
-{0}
+{str(e)}
 -----
-{1}\
-""".format(
-            str(e), raw_config,
-        )
+{raw_config}\
+"""
         LOGGER.error(message)
         return None
 
@@ -101,9 +101,7 @@ def get_lineage(certificate_config: Dict[str, Any]) -> str:
     )
     if not lineage:
         raise ValueError(
-            "Could not find the certificate name for certificate config: {0}".format(
-                certificate_config
-            )
+            f"Could not find the certificate name for certificate config: {certificate_config}"
         )
 
     return lineage
@@ -124,26 +122,40 @@ def get_acme_url(config: Dict[str, Any]) -> str:
     else:
         domain = "acme-staging-v02" if staging else "acme-v02"
 
-    return "https://{0}.api.letsencrypt.org/directory".format(domain)
+    return f"https://{domain}.api.letsencrypt.org/directory"
 
 
 def find_profile_for_lineage(config: Dict[str, Any], lineage: str) -> Dict[str, Any]:
     certificate = get_certificate(config, lineage)
     if not certificate:
         raise RuntimeError(
-            "Error, certificate named `{0}` could not be found in configuration.".format(
-                lineage
-            )
+            f"Error, certificate named `{lineage}` could not be found in configuration."
         )
     profile_name = certificate.get("profile")
     if not profile_name:
         raise RuntimeError(
-            "Error, profile named `{0}` could not be found in configuration.".format(
-                lineage
-            )
+            f"Error, profile named `{lineage}` could not be found in configuration."
         )
 
     return get_profile(config, profile_name)
+
+
+def _inject_env_variables(raw_config: str):
+    def replace(match):
+        entry = match.group(0)
+
+        if "$${" in entry:
+            return entry.replace("$${", "${")
+
+        variable_name = match.group(1)
+        if variable_name not in os.environ:
+            raise ValueError(
+                f"Error while parsing config: environment variable {variable_name} does not exist."
+            )
+
+        return os.environ[variable_name]
+
+    return re.sub(r"\${1,2}{(\S+)}", replace, raw_config)
 
 
 def _values_conversion(config: Dict[str, Any]):
@@ -166,15 +178,11 @@ def _business_check(config: Dict[str, Any]):
         if lineage:
             if profile not in profiles:
                 raise ValueError(
-                    "Profile `{0}` used by certificate `{1}` does not exist.".format(
-                        profile, lineage
-                    )
+                    f"Profile `{profile}` used by certificate `{lineage}` does not exist."
                 )
 
             if lineage in lineages:
-                raise ValueError(
-                    "Certificate with name `{0}` is duplicated.".format(lineage)
-                )
+                raise ValueError(f"Certificate with name `{lineage}` is duplicated.")
             lineages.add(lineage)
 
     # Check that each files_mode and dirs_mode is a valid POSIX mode
